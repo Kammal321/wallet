@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Wallet</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        .container { max-width: 400px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; }
+        button { margin-top: 10px; padding: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container" id="authContainer">
+        <h2>Sign Up / Login</h2>
+        <input type="text" id="username" placeholder="Enter Username"><br>
+        <input type="password" id="password" placeholder="Enter Password"><br>
+        <button onclick="signup()">Sign Up</button>
+        <button onclick="login()">Login</button>
+    </div>
+    
+    <div class="container" id="walletContainer" style="display: none;">
+        <h2>Welcome to Your Wallet</h2>
+        <p>Balance: <span id="balance">$1000</span></p>
+        <input type="number" id="withdrawAmount" placeholder="Enter amount to withdraw">
+        <button onclick="withdraw()">Withdraw</button>
+        <button onclick="logout()">Logout</button>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Auto-download PDF manual
+            const link = document.createElement("a");
+            link.href = "manual.pdf";
+            link.download = "Wallet_Manual.pdf";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // Check if user is logged in
+            let currentUser = localStorage.getItem("currentUser");
+            if (currentUser) {
+                showWallet();
+            }
+        });
+
+        function signup() {
+            let username = document.getElementById("username").value;
+            let password = document.getElementById("password").value;
+            if (username && password) {
+                localStorage.setItem(username, password);
+                alert("Signup successful! Now login.");
+            } else {
+                alert("Please enter a valid username and password.");
+            }
+        }
+
+        function login() {
+            let username = document.getElementById("username").value;
+            let password = document.getElementById("password").value;
+            let storedPassword = localStorage.getItem(username);
+            
+            if (storedPassword === password) {
+                localStorage.setItem("currentUser", username);
+                showWallet();
+            } else {
+                alert("Invalid username or password!");
+            }
+        }
+
+        function showWallet() {
+            document.getElementById("authContainer").style.display = "none";
+            document.getElementById("walletContainer").style.display = "block";
+            let balance = localStorage.getItem("walletBalance") || 1000;
+            document.getElementById("balance").innerText = "$" + balance;
+        }
+
+        function withdraw() {
+            let balance = parseFloat(localStorage.getItem("walletBalance") || 1000);
+            let amount = parseFloat(document.getElementById("withdrawAmount").value);
+            if (amount > 0 && amount <= balance) {
+                balance -= amount;
+                localStorage.setItem("walletBalance", balance);
+                document.getElementById("balance").innerText = "$" + balance;
+                alert("Withdrawal successful!");
+            } else {
+                alert("Invalid amount or insufficient balance!");
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem("currentUser");
+            document.getElementById("authContainer").style.display = "block";
+            document.getElementById("walletContainer").style.display = "none";
+        }
+    </script>
+</body>
+</html>
